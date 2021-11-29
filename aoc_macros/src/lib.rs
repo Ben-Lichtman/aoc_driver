@@ -135,6 +135,15 @@ impl Parse for ConfigInput {
 	}
 }
 
+/// Usage:
+/// ```rust
+/// run!(year, day, part, function, input_path);
+/// ```
+/// eg.
+/// ```rust
+/// run!(2021, 1, 1, year2020::day1::part1, "input/2020/1.txt")
+/// ```
+/// The `function` may also be a string literal
 #[proc_macro]
 pub fn run(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	let input = parse_macro_input!(input as RunInput);
@@ -156,6 +165,16 @@ pub fn run(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	proc_macro::TokenStream::from(output)
 }
 
+/// Usage:
+/// ```rust
+/// run!(year, day, part, function, input_path);
+/// ```
+/// eg.
+/// ```rust
+/// run!(2021, 1, 1, year2020::day1::part1, "input/2020/1.bin")
+/// ```
+/// The `function` may also be a string literal.
+/// The `_bytes` version calls the function with a &[u8]
 #[proc_macro]
 pub fn run_bytes(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	let input = parse_macro_input!(input as RunInput);
@@ -177,6 +196,15 @@ pub fn run_bytes(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	proc_macro::TokenStream::from(output)
 }
 
+/// Usage:
+/// ```rust
+/// run!(year, day, part, function, test_name, test_input, expected);
+/// ```
+/// eg.
+/// ```rust
+/// run!(2021, 1, 1, year2020::day1::part1, "simple", "123", "456");
+/// ```
+/// The `function` may also be a string literal.
 #[proc_macro]
 pub fn test(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	let input = parse_macro_input!(input as TestInput);
@@ -206,6 +234,16 @@ pub fn test(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	proc_macro::TokenStream::from(output)
 }
 
+/// Usage:
+/// ```rust
+/// run!(year, day, part, function, test_name, test_input, expected);
+/// ```
+/// eg.
+/// ```rust
+/// run!(2021, 1, 1, year2020::day1::part1, "simple", "123", "456");
+/// ```
+/// The `function` may also be a string literal.
+/// The `_bytes` version calls the function with a &[u8]
 #[proc_macro]
 pub fn test_bytes(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	let input = parse_macro_input!(input as TestBytesInput);
@@ -235,6 +273,44 @@ pub fn test_bytes(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	proc_macro::TokenStream::from(output)
 }
 
+/// Usage:
+/// ```rust
+/// execute_config!(config_file, session_file);
+/// ```
+/// eg.
+/// ```rust
+/// execute_config!("aoc_config.toml", ".session_token.txt");
+/// ```
+/// Runs tests, downloads inputs, and submits answers based off a given `TOML` file
+///
+/// The session file must contain only the session token taken from your browser
+///
+/// Challenge headers take the form of: `[challenges.{year}-{day}-{part}]`
+///
+/// Test headers take the form of: `[challenges.{year}-{day}-{part}.tests.{name}]`
+///
+/// Example config:
+/// ```toml
+/// input_dir = "input"
+///
+/// [challenges.2019-1-1]
+/// function = "year2019::day1::part1"
+///
+/// [challenges.2019-1-1.tests.1]
+/// input = "12"
+/// output = "2"
+///
+/// [challenges.2019-1-1.tests.2]
+/// input = "14"
+/// output = "2"
+///
+/// [challenges.2019-1-2]
+/// function = "year2019::day1::part2"
+///
+/// [challenges.2019-1-2.tests.0]
+/// input = "100756"
+/// output = "50346"
+/// ```
 #[proc_macro]
 pub fn execute_config(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	let input = parse_macro_input!(input as ConfigInput);
