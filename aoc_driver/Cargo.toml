@@ -7,5 +7,5 @@ repository = "https://github.com/Ben-Lichtman/aoc_driver"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-aoc_macros = { version = "0.1.0", path = "../aoc_macros" }
+aoc_macros = { version = "0.1.1", path = "../aoc_macros" }
 ureq = "2.3.1"
