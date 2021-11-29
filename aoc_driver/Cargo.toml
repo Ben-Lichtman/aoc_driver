@@ -1,0 +1,8 @@
+[package]
+name = "aoc_driver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aoc_macros = { path = "../aoc_macros" }
+ureq = "2.3.1"
