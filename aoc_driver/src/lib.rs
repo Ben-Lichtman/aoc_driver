@@ -1,4 +1,4 @@
-pub use aoc_macros::{execute_config, run, run_bytes, test, test_bytes};
+pub use aoc_macros::{aoc_complete, run, run_bytes, test, test_bytes};
 
 use std::{fs::write, path::Path};
 use ureq::{get, post};
