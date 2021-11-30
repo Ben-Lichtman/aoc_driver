@@ -125,6 +125,7 @@ impl Parse for TestBytesInput {
 }
 
 /// Runs a given function
+///
 ///  Usage:
 /// ```rust
 /// run!(year, day, part, function, input_path);
@@ -165,6 +166,8 @@ pub fn run(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	proc_macro::TokenStream::from(output)
 }
 
+/// Runs a given function with byte input
+///
 /// Usage:
 /// ```rust
 /// run_bytes!(year, day, part, function, input_path);
@@ -206,6 +209,8 @@ pub fn run_bytes(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	proc_macro::TokenStream::from(output)
 }
 
+/// Runs a test with given input
+///
 /// Usage:
 /// ```rust
 /// test!(year, day, part, function, test_name, test_input, expected);
@@ -252,6 +257,8 @@ pub fn test(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	proc_macro::TokenStream::from(output)
 }
 
+/// Runs a test with given byte input
+///
 /// Usage:
 /// ```rust
 /// test_bytes!(year, day, part, function, test_name, test_input, expected);
