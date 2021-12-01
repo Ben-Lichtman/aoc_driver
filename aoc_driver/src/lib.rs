@@ -1,6 +1,9 @@
 pub use aoc_macros::{aoc_complete, run, run_bytes, test, test_bytes};
 
-use std::{fs::write, path::Path};
+use std::{
+	fs::{create_dir_all, write},
+	path::Path,
+};
 use ureq::{get, post};
 
 /// Get some input from the AoC website and put it at `location`.
@@ -15,6 +18,10 @@ pub fn get_input(session: &str, year: u16, day: u8, location: &Path) -> bool {
 	};
 
 	let body = resp.into_string().expect("response was not a string");
+
+	if let Some(parent) = location.parent() {
+		create_dir_all(parent).unwrap();
+	}
 
 	write(location, body).unwrap();
 

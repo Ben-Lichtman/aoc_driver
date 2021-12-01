@@ -1,12 +1,6 @@
-use std::{
-	collections::HashMap,
-	fs::{create_dir_all, read_to_string},
-	hash::Hash,
-	path::PathBuf,
-};
-
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use std::{collections::HashMap, fs::read_to_string, hash::Hash, path::PathBuf};
 use syn::{
 	braced, bracketed,
 	parse::Parse,
@@ -465,9 +459,13 @@ struct Test {
 /// }
 /// ```
 /// The `session_file` must be a text file containing your session cookie string (you can find this through inspect element in your browser)
+///
 /// The `input_dir` is the directory where inputs will be cached while running challenges
+///
 /// For each challenge in `challenges` there must be only one field which is not the `tests` field - this will have the key be the name of the challenge in the form `"{year}-{day}-{part}"` and the value must be a path to the function that will be run for the challenge
+///
 /// The function should be able to take in a `&str` and output something which is displayable
+///
 /// eg.
 /// ```rust
 /// fn example(input: &str) -> impl std::fmt::Display {
@@ -501,7 +499,6 @@ pub fn aoc_complete(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 		.map(|(y, d, p, f, tests)| {
 			let mut input_file = PathBuf::from(&input_dir);
 			input_file.push(format!("{}", y));
-			create_dir_all(&input_file).unwrap();
 			input_file.push(format!("{}.txt", d));
 
 			let tests = tests
