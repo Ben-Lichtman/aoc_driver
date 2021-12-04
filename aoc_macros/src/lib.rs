@@ -535,7 +535,7 @@ pub fn aoc_complete(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 						println!("> INCORRECT");
 						return;
 					}
-					Ok(false) => {
+					Ok(true) => {
 						println!("> CORRECT");
 					}
 					Err(num) => {
