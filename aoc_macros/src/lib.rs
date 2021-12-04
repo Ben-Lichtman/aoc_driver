@@ -538,8 +538,8 @@ pub fn aoc_complete(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 					Ok(true) => {
 						println!("> CORRECT");
 					}
-					Err(num) => {
-						println!("> TIMEOUT - {}s left", num);
+					Err(time) => {
+						println!("> TIMEOUT - {} left", time);
 						return;
 					}
 				}
