@@ -31,7 +31,7 @@ pub fn get_input(session: &str, year: u16, day: u8, location: &Path) -> bool {
 /// Post an answer to the AoC website.
 /// Requires session string from browser.
 /// Returns `true` if answer was correct or has already been given
-pub fn post_answer(session: &str, year: u16, day: u8, part: u8, answer: &str) -> bool {
+pub fn post_answer(session: &str, year: u16, day: u8, part: u8, answer: &str) -> Result<bool, u32> {
 	let url = format!("https://adventofcode.com/{}/day/{}/answer", year, day);
 	let cookies = format!("session={}", session);
 	let form_level = format!("{}", part);
@@ -44,5 +44,13 @@ pub fn post_answer(session: &str, year: u16, day: u8, part: u8, answer: &str) ->
 
 	let body = resp.into_string().expect("response was not a string");
 
-	body.contains("That's the right answer!") | body.contains("Did you already complete it?")
+	let timeout_msg = "You gave an answer too recently; you have to wait after submitting an answer before trying again.  You have ";
+	if let Some(index) = body.find(timeout_msg) {
+		let start = index + timeout_msg.len();
+		let end = body.find("s left to wait.").unwrap();
+		let timeout = body[start..end].parse::<u32>().unwrap();
+		return Err(timeout);
+	}
+
+	Ok(body.contains("That's the right answer!") | body.contains("Did you already complete it?"))
 }

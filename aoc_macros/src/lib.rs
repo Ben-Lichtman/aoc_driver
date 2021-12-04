@@ -530,11 +530,19 @@ pub fn aoc_complete(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 				}
 
 				let displayed = ::aoc_driver::run!(#y, #d, #p, #f, #input_file_token);
-				if !::aoc_driver::post_answer(&session, #y, #d, #p, &displayed) {
-					println!("> INCORRECT");
-					return;
+				match ::aoc_driver::post_answer(&session, #y, #d, #p, &displayed) {
+					Ok(false) => {
+						println!("> INCORRECT");
+						return;
+					}
+					Ok(false) => {
+						println!("> CORRECT");
+					}
+					Err(num) => {
+						println!("> TIMEOUT - {}s left", num);
+						return;
+					}
 				}
-				println!("> CORRECT");
 			}
 		})
 		.collect::<TokenStream>();
