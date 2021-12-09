@@ -11,7 +11,7 @@ use ureq::{get, post};
 /// Returns `true` if input was successfully fetched
 pub fn get_input(session: &str, year: u16, day: u8, location: &Path) -> bool {
 	let url = format!("https://adventofcode.com/{}/day/{}/input", year, day);
-	let cookies = format!("session={}", session);
+	let cookies = format!("session={}", session.trim());
 	let resp = match get(&url).set("Cookie", &cookies).call() {
 		Ok(resp) => resp,
 		Err(_) => return false,

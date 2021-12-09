@@ -1,11 +1,11 @@
 [package]
 name = "aoc_driver"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 description = "helper macros and functions for AoC"
 repository = "https://github.com/Ben-Lichtman/aoc_driver"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-aoc_macros = { version = "0.1.7", path = "../aoc_macros" }
+aoc_macros = { version = "0.1.8", path = "../aoc_macros" }
 ureq = "2.3.1"
