@@ -499,7 +499,7 @@ pub fn aoc_complete(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 		.map(|(y, d, p, f, tests)| {
 			let mut input_file = PathBuf::from(&input_dir);
 			input_file.push(format!("{}", y));
-			input_file.push(format!("{}.txt", d));
+			input_file.push(format!("day{}.txt", d));
 
 			let tests = tests
 				.into_iter()
