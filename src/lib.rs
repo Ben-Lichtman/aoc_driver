@@ -10,7 +10,7 @@
 //!
 //! fn solution(i: &str) -> String { unimplemented!() }
 //!
-//! let session = "<session cookie>";
+//! let session = std::fs::read_to_string(".session.txt").unwrap();
 //! calculate_and_post(
 //!     session,
 //!     2020,
@@ -28,7 +28,7 @@
 //!
 //! fn solution(i: &str) -> String { unimplemented!() }
 //!
-//! let session = "<session cookie>";
+//! let session = std::fs::read_to_string(".session.txt").unwrap();
 //! aoc_magic!(session, 2020:1:1, solution).unwrap()
 //! ```
 //!
