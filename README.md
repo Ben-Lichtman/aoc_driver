@@ -1,36 +1,35 @@
-# AOC_DRIVER
+# Aoc Helpers
+All functionality requires AoC session cookie, which you can get from you browser after logging in
 
-This crate provides helpful functions and macros for completing Advent of Code
+(look in developer tools)
 
-The main functionality is provided by the `aoc_complete` macro, which pretty much does everything for you...
+The most obvious way to use this library is with the `calculate_and_post` function
 
 ```rust
-fn main() {
-	aoc_driver::aoc_complete! {
-		session_file: ".session.txt"
-		input_dir: "input"
-		challenges: [
-			{
-				"2019-1-1": year2019::day1::part1,
-				tests: [
-					{ name: "1", input: "12", output: "2" }
-					{ name: "2", input: "14", output: "2" }
-				]
-			}
-			{
-				"2019-1-2": year2019::day1::part2,
-				tests: [
-					{ name: "1", input: "100756", output: "50346" }
-				]
-			}
-		]
-	}
-}
+use aoc_driver::*;
+
+fn solution(i: &str) -> String { unimplemented!() }
+
+let session = "<session cookie>";
+calculate_and_post(
+    session,
+    2020,
+    1,
+    Part1,
+    Some("inputs/2020/1.txt"),
+    solution
+).unwrap();
 ```
 
-This will:
- - Run 2 tests for the 2019 day 1 part 1 challenge with the provided input
- - Download the official input data using your session token
- - Submit an answer using the input data
- - Tell you if your answer was correct
- - If you were correct it continues and runs the next provided tests and challenge etc.
+There is an even faster way though using the `aoc_magic` macro
+
+```rust
+use aoc_driver::*;
+
+fn solution(i: &str) -> String { unimplemented!() }
+
+let session = "<session cookie>";
+aoc_magic!(session, 2020:1:1, solution).unwrap()
+```
+
+This macro does the same as the above function call (including creating an `inputs` directory), but more concisely
