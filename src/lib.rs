@@ -196,7 +196,8 @@ where
 		Some(path) => get_input_or_file(session, year, day, path),
 		None => get_input(session, year, day),
 	}?;
-	let answer = solution(&input);
+	let answer = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| solution(&input)))
+		.map_err(Error::Panic)?;
 	post_answer(session, year, day, part, answer)?;
 	Ok(())
 }

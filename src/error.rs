@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -12,4 +14,6 @@ pub enum Error {
 	Incorrect,
 	#[error("rate limited - wait {0}")]
 	RateLimit(String),
+	#[error("the solution function panicked")]
+	Panic(Box<dyn Any + Send + 'static>),
 }
