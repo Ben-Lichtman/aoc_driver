@@ -34,6 +34,7 @@
 //!
 //! This macro does the same as the above function call (including creating an `inputs` directory), but more concisely
 
+#[cfg(feature = "local_cache")]
 mod cache;
 pub mod error;
 
@@ -133,7 +134,7 @@ pub fn post_answer(
 	day: i32,
 	part: i32,
 	answer: &str,
-	cache_path: Option<impl AsRef<Path>>,
+	#[cfg_attr(not(feature = "local_cache"), allow(unused))] cache_path: Option<impl AsRef<Path>>,
 ) -> Result<()> {
 	let post_fn = |answer: &str| {
 		let url = format!("https://adventofcode.com/{}/day/{}/answer", year, day);
@@ -167,7 +168,12 @@ pub fn post_answer(
 			false => Err(Error::Incorrect),
 		}
 	};
-	crate::cache::cache_wrapper(answer, part.into(), cache_path, post_fn)
+
+	#[cfg(feature = "local_cache")]
+	return crate::cache::cache_wrapper(answer, part.into(), cache_path, post_fn);
+
+	#[cfg(not(feature = "local_cache"))]
+	return post_fn(answer);
 }
 
 /// Fetches the challenge input, calculate the answer, and post it to the AoC website
@@ -219,11 +225,16 @@ macro_rules! aoc_magic {
 		let file_name = format!("{}.txt", $day);
 		input_path.push(file_name);
 
-		let mut cache_path = std::path::PathBuf::from_iter(["cache", &$year.to_string()]);
-		std::fs::create_dir_all(&cache_path).unwrap();
+		let cache_path = if cfg!(feature = "local_cache") {
+			let mut cache_path = std::path::PathBuf::from_iter(["cache", &$year.to_string()]);
+			std::fs::create_dir_all(&cache_path).unwrap();
 
-		let file_name = format!("{}.json", $day);
-		cache_path.push(file_name);
+			let file_name = format!("{}.json", $day);
+			cache_path.push(file_name);
+			Some(cache_path)
+		} else {
+			None
+		};
 
 		aoc_driver::calculate_and_post(
 			$session,
@@ -231,7 +242,7 @@ macro_rules! aoc_magic {
 			$day,
 			$part,
 			Some(&input_path),
-			Some(&cache_path),
+			cache_path.as_ref(),
 			$sol,
 		)
 	}};
