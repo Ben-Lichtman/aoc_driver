@@ -7,5 +7,8 @@ repository = "https://github.com/Ben-Lichtman/aoc_driver"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+chrono = { version = "0.4.23", features = ["serde"] }
+serde = { version = "1.0.148", features = ["derive", "std", "rc"] }
+serde_json = "1.0.89"
 thiserror = "1.0.37"
 ureq = "2.5.0"

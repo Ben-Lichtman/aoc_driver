@@ -34,6 +34,7 @@
 //!
 //! This macro does the same as the above function call (including creating an `inputs` directory), but more concisely
 
+mod cache;
 pub mod error;
 
 pub use Part::*;
@@ -78,7 +79,7 @@ pub fn get_input(session: &str, year: impl Into<i32>, day: impl Into<i32>) -> Re
 		.set("User-Agent", "rust/aoc_driver")
 		.set("Cookie", &cookies)
 		.call()
-		.map_err(|e| Error::UReq(Box::new(e)))?;
+		.map_err(|e| Error::UReq(Some(Box::new(e))))?;
 
 	let mut body = resp.into_string()?;
 
@@ -128,45 +129,45 @@ pub fn get_input_or_file(
 /// Returns `Err(Error::RateLimit(String))` if you are being rate-limited
 pub fn post_answer(
 	session: &str,
-	year: impl Into<i32>,
-	day: impl Into<i32>,
-	part: impl Into<i32>,
-	answer: impl Display,
+	year: i32,
+	day: i32,
+	part: i32,
+	answer: &str,
+	cache_path: Option<impl AsRef<Path>>,
 ) -> Result<()> {
-	let url = format!(
-		"https://adventofcode.com/{}/day/{}/answer",
-		year.into(),
-		day.into()
-	);
-	let cookies = format!("session={}", session);
-	let form_level = format!("{}", part.into());
-	let form = [
-		("level", form_level.as_str()),
-		("answer", &answer.to_string()),
-	];
+	let post_fn = |answer: &str| {
+		let url = format!("https://adventofcode.com/{}/day/{}/answer", year, day);
+		let cookies = format!("session={}", session);
+		let form_level = format!("{}", part);
+		let form = [
+			("level", form_level.as_str()),
+			("answer", &answer.to_string()),
+		];
 
-	let resp = post(&url)
-		.set("User-Agent", "rust/aoc_driver")
-		.set("Cookie", &cookies)
-		.send_form(&form)
-		.map_err(|e| Error::UReq(Box::new(e)))?;
+		let resp = post(&url)
+			.set("User-Agent", "rust/aoc_driver")
+			.set("Cookie", &cookies)
+			.send_form(&form)
+			.map_err(|e| Error::UReq(Some(Box::new(e))))?;
 
-	let body = resp.into_string().expect("response was not a string");
+		let body = resp.into_string().expect("response was not a string");
 
-	let timeout_msg = "You gave an answer too recently; you have to wait after submitting an answer before trying again.  You have ";
-	if let Some(index) = body.find(timeout_msg) {
-		let start = index + timeout_msg.len();
-		let end = body.find(" left to wait.").unwrap();
-		let timeout = String::from(&body[start..end]);
-		return Err(Error::RateLimit(timeout));
-	}
+		let timeout_msg = "You gave an answer too recently; you have to wait after submitting an answer before trying again.  You have ";
+		if let Some(index) = body.find(timeout_msg) {
+			let start = index + timeout_msg.len();
+			let end = body.find(" left to wait.").unwrap();
+			let timeout = String::from(&body[start..end]);
+			return Err(Error::RateLimit(timeout));
+		}
 
-	let correct =
-		body.contains("That's the right answer!") | body.contains("Did you already complete it?");
-	match correct {
-		true => Ok(()),
-		false => Err(Error::Incorrect),
-	}
+		let correct = body.contains("That's the right answer!")
+			| body.contains("Did you already complete it?");
+		match correct {
+			true => Ok(()),
+			false => Err(Error::Incorrect),
+		}
+	};
+	crate::cache::cache_wrapper(answer, part.into(), cache_path, post_fn)
 }
 
 /// Fetches the challenge input, calculate the answer, and post it to the AoC website
@@ -183,7 +184,8 @@ pub fn calculate_and_post<SolOutput, SolFn>(
 	year: impl Into<i32>,
 	day: impl Into<i32>,
 	part: impl Into<i32>,
-	path: Option<impl AsRef<Path>>,
+	input_path: Option<impl AsRef<Path>>,
+	cache_path: Option<impl AsRef<Path>>,
 	solution: SolFn,
 ) -> Result<()>
 where
@@ -194,13 +196,14 @@ where
 	let day = day.into();
 	let part = part.into();
 
-	let input = match path {
+	let input = match input_path {
 		Some(path) => get_input_or_file(session, year, day, path),
 		None => get_input(session, year, day),
 	}?;
 	let answer = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| solution(&input)))
-		.map_err(Error::Panic)?;
-	post_answer(session, year, day, part, answer)?;
+		.map_err(|err| Error::Panic(Some(err)))?;
+	let answer = answer.to_string();
+	post_answer(session, year, day, part, &answer, cache_path)?;
 	Ok(())
 }
 
@@ -210,12 +213,26 @@ where
 #[macro_export]
 macro_rules! aoc_magic {
 	($session:expr, $year:literal : $day:literal : $part:literal, $sol:path) => {{
-		let mut path = std::path::PathBuf::from_iter(["inputs", &$year.to_string()]);
-		std::fs::create_dir_all(&path).unwrap();
+		let mut input_path = std::path::PathBuf::from_iter(["inputs", &$year.to_string()]);
+		std::fs::create_dir_all(&input_path).unwrap();
 
 		let file_name = format!("{}.txt", $day);
-		path.push(file_name);
+		input_path.push(file_name);
 
-		aoc_driver::calculate_and_post($session, $year, $day, $part, Some(&path), $sol)
+		let mut cache_path = std::path::PathBuf::from_iter(["cache", &$year.to_string()]);
+		std::fs::create_dir_all(&cache_path).unwrap();
+
+		let file_name = format!("{}.json", $day);
+		cache_path.push(file_name);
+
+		aoc_driver::calculate_and_post(
+			$session,
+			$year,
+			$day,
+			$part,
+			Some(&input_path),
+			Some(&cache_path),
+			$sol,
+		)
 	}};
 }
