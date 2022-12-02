@@ -75,6 +75,7 @@ pub fn get_input(session: &str, year: impl Into<i32>, day: impl Into<i32>) -> Re
 	);
 	let cookies = format!("session={}", session);
 	let resp = get(&url)
+		.set("User-Agent", "rust/aoc_driver")
 		.set("Cookie", &cookies)
 		.call()
 		.map_err(|e| Error::UReq(Box::new(e)))?;
@@ -145,6 +146,7 @@ pub fn post_answer(
 	];
 
 	let resp = post(&url)
+		.set("User-Agent", "rust/aoc_driver")
 		.set("Cookie", &cookies)
 		.send_form(&form)
 		.map_err(|e| Error::UReq(Box::new(e)))?;
