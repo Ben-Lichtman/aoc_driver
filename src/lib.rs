@@ -127,6 +127,8 @@ pub fn get_input_or_file(
 
 /// Post an answer to the AoC website.
 ///
+/// Will also cache the result / submission at the given path if provided
+///
 /// Returns `Ok(())` if answer was correct or has already been given
 ///
 /// Returns `Err(Error::Incorrect)` if the answer was wrong
@@ -186,7 +188,7 @@ where
 ///
 /// Will cache the input at `path` if provided
 ///
-/// Will also cache the
+/// Will also cache the result / submission at the given path if provided
 ///
 /// Returns `Ok(())` if answer was correct or has already been given
 ///

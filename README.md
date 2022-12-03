@@ -17,6 +17,7 @@ calculate_and_post(
     1,
     Part1,
     Some("inputs/2020/1.txt"),
+    Some("cache/2022/1.json"),
     solution
 ).unwrap();
 ```
@@ -32,4 +33,4 @@ let session = std::fs::read_to_string(".session.txt").unwrap();
 aoc_magic!(&session, 2020:1:1, solution).unwrap()
 ```
 
-This macro does the same as the above function call (including creating an `inputs` directory), but more concisely
+This macro does the same as the above function call (including creating an `inputs` and `cache` directory), but more concisely
