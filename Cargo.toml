@@ -1,6 +1,6 @@
 [package]
 name = "aoc_driver"
-version = "0.2.5"
+version = "0.3.0"
 edition = "2021"
 description = "helper macros and functions for AoC"
 repository = "https://github.com/Ben-Lichtman/aoc_driver"
@@ -14,4 +14,5 @@ thiserror = "1.0.37"
 ureq = "2.5.0"
 
 [features]
+default = ["local_cache"]
 local_cache = ["serde", "serde_json", "chrono"]

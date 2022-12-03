@@ -140,10 +140,7 @@ pub fn post_answer(
 		let url = format!("https://adventofcode.com/{}/day/{}/answer", year, day);
 		let cookies = format!("session={}", session);
 		let form_level = format!("{}", part);
-		let form = [
-			("level", form_level.as_str()),
-			("answer", &answer.to_string()),
-		];
+		let form = [("level", form_level.as_str()), ("answer", answer)];
 
 		let resp = post(&url)
 			.set("User-Agent", "rust/aoc_driver")
@@ -216,6 +213,7 @@ where
 /// Magic macro to make AoC even easier
 ///
 /// Usage: `aoc_magic!(<session cookie>, <year>:<day>:<part>, <solution function>)`
+#[cfg(not(feature = "local_cache"))]
 #[macro_export]
 macro_rules! aoc_magic {
 	($session:expr, $year:literal : $day:literal : $part:literal, $sol:path) => {{
@@ -225,16 +223,37 @@ macro_rules! aoc_magic {
 		let file_name = format!("{}.txt", $day);
 		input_path.push(file_name);
 
-		let cache_path = if cfg!(feature = "local_cache") {
+		let cache_path = None;
+
+		aoc_driver::calculate_and_post(
+			$session,
+			$year,
+			$day,
+			$part,
+			Some(&input_path),
+			cache_path.as_ref(),
+			$sol,
+		)
+	}};
+}
+
+#[cfg(feature = "local_cache")]
+#[macro_export]
+macro_rules! aoc_magic {
+	($session:expr, $year:literal : $day:literal : $part:literal, $sol:path) => {{
+		let mut input_path = std::path::PathBuf::from_iter(["inputs", &$year.to_string()]);
+		std::fs::create_dir_all(&input_path).unwrap();
+
+		let file_name = format!("{}.txt", $day);
+		input_path.push(file_name);
+
+		let cache_path = {
 			let mut cache_path = std::path::PathBuf::from_iter(["cache", &$year.to_string()]);
 			std::fs::create_dir_all(&cache_path).unwrap();
 
 			let file_name = format!("{}.json", $day);
 			cache_path.push(file_name);
 			Some(cache_path)
-		}
-		else {
-			None
 		};
 
 		aoc_driver::calculate_and_post(
