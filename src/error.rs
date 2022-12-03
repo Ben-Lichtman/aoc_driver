@@ -20,7 +20,5 @@ pub enum Error {
 }
 
 impl From<std::io::Error> for Error {
-	fn from(error: std::io::Error) -> Self {
-		Error::IO(Some(error))
-	}
+	fn from(error: std::io::Error) -> Self { Error::IO(Some(error)) }
 }

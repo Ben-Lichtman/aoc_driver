@@ -232,7 +232,8 @@ macro_rules! aoc_magic {
 			let file_name = format!("{}.json", $day);
 			cache_path.push(file_name);
 			Some(cache_path)
-		} else {
+		}
+		else {
 			None
 		};
 

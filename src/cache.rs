@@ -40,7 +40,8 @@ pub fn cache_wrapper(
 			.unwrap_or_default();
 		let cache = if part == 1 {
 			&mut full_cache.part_1
-		} else {
+		}
+		else {
 			&mut full_cache.part_2
 		};
 
@@ -66,12 +67,14 @@ pub fn cache_wrapper(
 							remaining_seconds = ratelimit_seconds
 								.checked_sub(&time_since_ratelimit_response)
 								.and_then(|d| d.num_seconds().try_into().ok());
-						} else {
+						}
+						else {
 							remaining_seconds = None;
 						}
 						if let Some(remaining_seconds) = remaining_seconds {
 							return Err(Error::RateLimit(format!("{remaining_seconds}s")));
-						} else {
+						}
+						else {
 							let response = post_fn(result);
 							let response = Rc::new(Response {
 								submission_time: Utc::now(),
@@ -116,7 +119,8 @@ pub fn cache_wrapper(
 		drop(full_cache);
 
 		Rc::try_unwrap(final_response).unwrap().response
-	} else {
+	}
+	else {
 		post_fn(result)
 	}
 }
