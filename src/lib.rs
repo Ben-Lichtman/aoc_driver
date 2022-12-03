@@ -17,6 +17,7 @@
 //!     1,
 //!     Part1,
 //!     Some("inputs/2020/1.txt"),
+//!     Some("cache/2022/1.json"),
 //!     solution
 //! ).unwrap();
 //! ```
@@ -32,7 +33,7 @@
 //! aoc_magic!(session, 2020:1:1, solution).unwrap()
 //! ```
 //!
-//! This macro does the same as the above function call (including creating an `inputs` directory), but more concisely
+//! This macro does the same as the above function call (including creating an `inputs` and `cache` directory), but more concisely
 
 #[cfg(feature = "local_cache")]
 mod cache;
@@ -40,7 +41,10 @@ pub mod error;
 
 pub use Part::*;
 
-use crate::error::{Error, Result};
+use crate::{
+	cache::cache_wrapper,
+	error::{Error, Result},
+};
 use std::{
 	fmt::Display,
 	fs::File,
@@ -128,14 +132,17 @@ pub fn get_input_or_file(
 /// Returns `Err(Error::Incorrect)` if the answer was wrong
 ///
 /// Returns `Err(Error::RateLimit(String))` if you are being rate-limited
-pub fn post_answer(
+pub fn post_answer<SolOutput>(
 	session: &str,
 	year: i32,
 	day: i32,
 	part: i32,
-	answer: &str,
 	#[cfg_attr(not(feature = "local_cache"), allow(unused))] cache_path: Option<impl AsRef<Path>>,
-) -> Result<()> {
+	answer: SolOutput,
+) -> Result<()>
+where
+	SolOutput: Display,
+{
 	let post_fn = |answer: &str| {
 		let url = format!("https://adventofcode.com/{}/day/{}/answer", year, day);
 		let cookies = format!("session={}", session);
@@ -166,8 +173,10 @@ pub fn post_answer(
 		}
 	};
 
+	let answer = answer.to_string();
+
 	#[cfg(feature = "local_cache")]
-	return crate::cache::cache_wrapper(answer, part.into(), cache_path, post_fn);
+	return cache_wrapper(cache_path, part, &answer, post_fn);
 
 	#[cfg(not(feature = "local_cache"))]
 	return post_fn(answer);
@@ -176,6 +185,8 @@ pub fn post_answer(
 /// Fetches the challenge input, calculate the answer, and post it to the AoC website
 ///
 /// Will cache the input at `path` if provided
+///
+/// Will also cache the
 ///
 /// Returns `Ok(())` if answer was correct or has already been given
 ///
@@ -205,15 +216,13 @@ where
 	}?;
 	let answer = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| solution(&input)))
 		.map_err(|err| Error::Panic(Some(err)))?;
-	let answer = answer.to_string();
-	post_answer(session, year, day, part, &answer, cache_path)?;
+	post_answer(session, year, day, part, cache_path, answer)?;
 	Ok(())
 }
 
 /// Magic macro to make AoC even easier
 ///
 /// Usage: `aoc_magic!(<session cookie>, <year>:<day>:<part>, <solution function>)`
-#[cfg(not(feature = "local_cache"))]
 #[macro_export]
 macro_rules! aoc_magic {
 	($session:expr, $year:literal : $day:literal : $part:literal, $sol:path) => {{
@@ -223,38 +232,11 @@ macro_rules! aoc_magic {
 		let file_name = format!("{}.txt", $day);
 		input_path.push(file_name);
 
-		let cache_path = None;
+		let mut cache_path = std::path::PathBuf::from_iter(["cache", &$year.to_string()]);
+		std::fs::create_dir_all(&cache_path).unwrap();
 
-		aoc_driver::calculate_and_post(
-			$session,
-			$year,
-			$day,
-			$part,
-			Some(&input_path),
-			cache_path.as_ref(),
-			$sol,
-		)
-	}};
-}
-
-#[cfg(feature = "local_cache")]
-#[macro_export]
-macro_rules! aoc_magic {
-	($session:expr, $year:literal : $day:literal : $part:literal, $sol:path) => {{
-		let mut input_path = std::path::PathBuf::from_iter(["inputs", &$year.to_string()]);
-		std::fs::create_dir_all(&input_path).unwrap();
-
-		let file_name = format!("{}.txt", $day);
-		input_path.push(file_name);
-
-		let cache_path = {
-			let mut cache_path = std::path::PathBuf::from_iter(["cache", &$year.to_string()]);
-			std::fs::create_dir_all(&cache_path).unwrap();
-
-			let file_name = format!("{}.json", $day);
-			cache_path.push(file_name);
-			Some(cache_path)
-		};
+		let file_name = format!("{}.json", $day);
+		cache_path.push(file_name);
 
 		aoc_driver::calculate_and_post(
 			$session,
