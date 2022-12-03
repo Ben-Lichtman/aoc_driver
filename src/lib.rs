@@ -244,7 +244,7 @@ macro_rules! aoc_magic {
 			$day,
 			$part,
 			Some(&input_path),
-			cache_path.as_ref(),
+			Some(&cache_path),
 			$sol,
 		)
 	}};
