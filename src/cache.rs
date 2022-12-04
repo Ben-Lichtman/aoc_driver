@@ -30,7 +30,15 @@ fn get_remaining_time(submission_time: &DateTime<Utc>, rate_limit_str: &str) -> 
 		let time_since_ratelimit_response = Utc::now() - *submission_time;
 		remaining_seconds = ratelimit_seconds
 			.checked_sub(&time_since_ratelimit_response)
-			.and_then(|d| d.num_seconds().try_into().ok());
+			.map(|d| d.num_seconds())
+			.and_then(|x| {
+				if x.is_positive() {
+					Some(x)
+				}
+				else {
+					None
+				}
+			});
 	}
 	remaining_seconds
 }
