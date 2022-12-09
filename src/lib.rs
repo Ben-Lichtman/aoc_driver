@@ -206,7 +206,7 @@ pub fn calculate_and_post<SolOutput, SolFn>(
 ) -> Result<()>
 where
 	SolOutput: Display,
-	SolFn: Fn(&str) -> SolOutput,
+	SolFn: FnOnce(&str) -> SolOutput,
 {
 	let year = year.into();
 	let day = day.into();
@@ -227,7 +227,7 @@ where
 /// Usage: `aoc_magic!(<session cookie>, <year>:<day>:<part>, <solution function>)`
 #[macro_export]
 macro_rules! aoc_magic {
-	($session:expr, $year:literal : $day:literal : $part:literal, $sol:path) => {{
+	($session:expr, $year:literal : $day:literal : $part:literal, $sol:expr) => {{
 		let mut input_path = std::path::PathBuf::from_iter(["inputs", &$year.to_string()]);
 		std::fs::create_dir_all(&input_path).unwrap();
 
