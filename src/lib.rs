@@ -206,7 +206,7 @@ pub fn calculate_and_post<SolOutput, SolFn>(
 ) -> Result<()>
 where
 	SolOutput: Display,
-	SolFn: Fn(&str) -> SolOutput,
+	SolFn: FnOnce(&str) -> SolOutput,
 {
 	let year = year.into();
 	let day = day.into();
