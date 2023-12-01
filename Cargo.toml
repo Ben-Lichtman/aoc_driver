@@ -1,6 +1,6 @@
 [package]
 name = "aoc_driver"
-version = "0.3.5"
+version = "0.3.6"
 edition = "2021"
 description = "helper macros and functions for AoC"
 repository = "https://github.com/Ben-Lichtman/aoc_driver"
