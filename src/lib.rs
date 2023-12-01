@@ -41,10 +41,10 @@ pub mod error;
 
 pub use Part::*;
 
-use crate::{
-	cache::cache_wrapper,
-	error::{Error, Result},
-};
+#[cfg(feature = "local_cache")]
+use crate::cache::cache_wrapper;
+
+use crate::error::{Error, Result};
 use std::{
 	fmt::Display,
 	fs::File,
@@ -181,7 +181,7 @@ where
 	return cache_wrapper(cache_path, part, &answer, post_fn);
 
 	#[cfg(not(feature = "local_cache"))]
-	return post_fn(answer);
+	return post_fn(&answer);
 }
 
 /// Fetches the challenge input, calculate the answer, and post it to the AoC website
