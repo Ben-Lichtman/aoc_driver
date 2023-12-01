@@ -23,6 +23,7 @@ impl From<std::io::Error> for Error {
 }
 
 #[derive(Debug, Clone)]
+#[cfg(feature = "local_cache")]
 #[cfg_attr(feature = "local_cache", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) enum ErrorSerializable {
 	IO,
@@ -32,6 +33,7 @@ pub(crate) enum ErrorSerializable {
 	Panic,
 }
 
+#[cfg(feature = "local_cache")]
 impl ErrorSerializable {
 	pub fn from(value: &Error) -> Self {
 		match value {
